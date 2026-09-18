@@ -177,21 +177,11 @@ macro_rules! enci {
 /// a debuggable build). With `redact` it expands to an **empty `&str`**, so the
 /// literal never enters the binary -- for text that never reaches the program's
 /// real output, which is pure attack surface.
-/// Re-export of the `obfstr` crate's `obfstr!` macro under `crypt`'s own root, so
-/// [`obfstr_err!`] can reach it through `$crate` no matter which crate expands the
-/// macro. `#[macro_export]` macros expand in the *caller's* namespace, so a bare
-/// `::obfstr::obfstr!` would require every downstream crate to also depend on
-/// `obfstr` by that name; routing through `$crate` keeps the dependency `crypt`'s
-/// private business.
-#[cfg(not(feature = "redact"))]
-#[doc(hidden)]
-pub use ::obfstr::obfstr as __obfstr;
-
 #[cfg(not(feature = "redact"))]
 #[macro_export]
 macro_rules! obfstr_err {
     ($s:literal) => {
-        $crate::__obfstr!($s)
+        ::obfstr::obfstr!($s)
     };
 }
 
