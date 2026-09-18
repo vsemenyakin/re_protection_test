@@ -1,0 +1,10 @@
+[package]
+name = "re_protection_test"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crypt = { path = "crates/crypt" }
+
+[features]
+harden = ["crypt/self-integrity", "crypt/redact"]
