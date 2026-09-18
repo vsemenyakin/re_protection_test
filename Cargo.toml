@@ -3,6 +3,11 @@ name = "re_protection_test"
 version = "0.1.0"
 edition = "2024"
 
+# Make `crypt` a workspace member, not just a path dependency, so that
+# `cargo run -p crypt --bin seal` can select it by name.
+[workspace]
+members = [".", "crates/crypt"]
+
 [dependencies]
 crypt = { path = "crates/crypt" }
 
