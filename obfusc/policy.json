@@ -1,0 +1,12 @@
+{
+  "_comment": "Layer 4 obfuscation policy. Regex matches (v0-mangled) function names of workspace crates only; std/deps are never obfuscated (RUSTC_WORKSPACE_WRAPPER). Crown = core IP: the pipeline, the decoys, and the decode-key keying. Rest = the remainder of our crates.",
+  "crown": {
+    "regex": "pipeline|decoys|keying",
+    "sub_rounds": 2,
+    "bcf": true,
+    "fla": true
+  },
+  "rest": {
+    "sub_rounds": 1
+  }
+}

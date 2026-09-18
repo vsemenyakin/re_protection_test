@@ -115,6 +115,51 @@ mod keying;
 #[cfg(all(feature = "self-integrity", target_os = "linux"))]
 pub use keying::{init as init_keying, key as __key};
 
+// -- Layer 5 runtime-hardening orchestration --------------------------------
+
+#[cfg(all(feature = "anti-tamper", target_os = "linux"))]
+mod gates;
+
+/// The single runtime-hardening entry point. Call **once**, first thing in
+/// `main`, before any encrypted constant is decoded or any input is read.
+///
+/// Order is deliberate (layer 5): anti-debug (5.2) and anti-injection (5.3)
+/// gates, then the self-ptrace sentinel (5.7), then non-dumpable (5.1), then the
+/// decode-key init (5.5/5.6), then `mseal` (5.4) **last**. The key is assembled
+/// only after a debugger has been refused and the tracer slot taken, so a live
+/// debugger cannot lift it before the gates run.
+///
+/// Without `anti-tamper` (or off Linux) this is just [`init_keying`], so dev and
+/// non-Linux builds compile and run normally (and stay debuggable).
+#[cfg(all(feature = "anti-tamper", target_os = "linux"))]
+pub fn harden() {
+    gates::refuse_if_traced();
+    gates::refuse_if_injected();
+    gates::self_ptrace();
+    gates::set_nondumpable();
+    init_keying();
+    gates::seal_text();
+}
+
+/// No-op hardening: dev/non-Linux builds just initialise the (no-op or `K`) key.
+#[cfg(not(all(feature = "anti-tamper", target_os = "linux")))]
+#[inline(always)]
+pub fn harden() {
+    init_keying();
+}
+
+/// Signal a normal shutdown so the self-ptrace watchdog does not fire when the
+/// sentinel legitimately follows the parent out. Call just before a clean exit.
+#[cfg(all(feature = "anti-tamper", target_os = "linux"))]
+pub fn harden_shutdown() {
+    gates::mark_shutting_down();
+}
+
+/// No-op off the `anti-tamper` Linux path.
+#[cfg(not(all(feature = "anti-tamper", target_os = "linux")))]
+#[inline(always)]
+pub fn harden_shutdown() {}
+
 // -- macros -----------------------------------------------------------------
 
 /// Per-call-site salt, from the invocation's line and column. Diversifies the key

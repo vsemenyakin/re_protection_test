@@ -12,4 +12,21 @@ members = [".", "crates/crypt"]
 crypt = { path = "crates/crypt" }
 
 [features]
-harden = ["crypt/self-integrity", "crypt/redact"]
+default = ["introspection"]
+# Layer 0.1 / Layer 1: the single source of human-readable name-strings -- verbose
+# diagnostics, the full dev CLI, anything that maps the program's semantics. The
+# `ship` build turns this OFF (`--no-default-features`), so those strings never
+# enter the binary.
+introspection = []
+# Layer 5: runtime anti-tamper, self-integrity decode-key binding, and message
+# redaction. `ship`-only.
+anti-tamper = ["crypt/anti-tamper", "crypt/redact"]
+
+# Layer 0.1: the shipped build profile.
+[profile.ship]
+inherits = "release"
+strip = "symbols"
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = 3

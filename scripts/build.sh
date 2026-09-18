@@ -1,4 +1,6 @@
-CRYPT_K="0x$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')" \
-  cargo build --release --features harden
-strip target/release/re_protection_test
-cargo run -p crypt --bin seal -- target/release/re_protection_test --page-size 16384
+#!/usr/bin/env bash
+# Deprecated: superseded by build-ship.sh, which does the full hardened build
+# (path remapping, build-std without panic strings, strip, seal, and the leak
+# verifier) with the correct shared CRYPT_K. Kept as a thin shim.
+set -euo pipefail
+exec "$(dirname "$0")/build-ship.sh" "$@"

@@ -14,10 +14,15 @@ self-integrity = []
 # Make `obfstr_err!` erase its message to "" (for a shipped build) instead of
 # encrypting it with obfstr (for a debuggable build).
 redact = []
+# Layer 5 runtime anti-tamper gates (anti-debug, anti-injection, self-ptrace,
+# mseal). Linux-only in effect; pulls in the self-integrity decode key and libc.
+anti-tamper = ["self-integrity", "dep:libc"]
 
 [dependencies]
 # Used by obfstr_err! when NOT redacting.
 obfstr = "0.4"
+# Raw syscalls for the Layer 5 gates. Only linked under `anti-tamper`.
+libc = { version = "0.2", optional = true }
 
 [[bin]]
 name = "seal"
