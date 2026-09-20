@@ -10,8 +10,9 @@
 #   3.3  fresh random CRYPT_K per build (constants' ciphertext differs every build)
 #   5.6  seal the binary to its own .text LAST (after strip), same CRYPT_K as the
 #        build, or the runtime decode key would diverge and constants decode to garbage
-#   2.6  verify-ship.sh gates leaks -- REFUSE (non-zero exit) if any forbidden
-#        string returns, so an unhardened binary never ships silently
+#   2.6  verify_ship.py gates leaks -- REFUSE (non-zero exit) if any forbidden
+#        string or cleartext secret float returns, so an unhardened binary never
+#        ships silently
 #
 # Usage: scripts/build-ship.sh [--page-size N]   (default page size 16384)
 set -euo pipefail
@@ -82,6 +83,6 @@ env -u RUSTC_WORKSPACE_WRAPPER CRYPT_K="$CRYPT_K" \
 
 # Layer 2.6: refuse to ship a binary that leaks.
 echo ">> verifying $BIN"
-"$ROOT/scripts/verify-ship.sh" "$BIN"
+python3 "$ROOT/scripts/verify_ship.py" "$BIN"
 
 echo ">> OK: $BIN"
