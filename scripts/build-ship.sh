@@ -42,7 +42,7 @@ export CRYPT_K="0x$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 # missing -- never ship unobfuscated silently.
 PLUGIN="$ROOT/obfusc/build/Obfusc.so"
 POLICY="$ROOT/obfusc/policy.json"
-[ -f "$PLUGIN" ] || "$ROOT/scripts/build-obfusc.sh"
+[ -f "$PLUGIN" ] || bash "$ROOT/scripts/build-obfusc.sh"
 [ -f "$PLUGIN" ] || { echo "REFUSE: obfuscation plugin missing: $PLUGIN" >&2; exit 1; }
 [ -f "$POLICY" ] || { echo "REFUSE: obfuscation policy missing: $POLICY" >&2; exit 1; }
 export OBF_PLUGIN="$PLUGIN"
